@@ -8,7 +8,6 @@ namespace laba9rpm3k._2
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }

@@ -13,13 +13,6 @@ namespace laba9rpm3k._2.Models
         {
             Name = name;
             Phone = phone;
-            try
-            {
-                // Я ЗНАЮ ЧТО ВЫГЛЯДИТ ПО-ВАРВАРСКИ, НО ЭТО РАБОТАЕТ!!!
-                if (!Validate())
-                    throw new ArgumentException("Некорректные данные");
-            }
-            catch { }
         }
 
         public string Name

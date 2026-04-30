@@ -1,13 +1,14 @@
 ﻿using laba9rpm3k._2.Models;
+using laba9rpm3k._2.Services;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Input;
 
 namespace laba9rpm3k._2.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public class ViewModel : ObservableObject
     {
-        // Коллекция контактов
+        private readonly IDialogService _dialogService;
+
         public ObservableCollection<PhoneContact> Contacts { get; }
 
         private string _name = string.Empty;
@@ -17,7 +18,6 @@ namespace laba9rpm3k._2.ViewModels
             set => Set(ref _name, value);
         }
 
-        // Свойство Phone
         private string _phone = string.Empty;
         public string Phone
         {
@@ -32,19 +32,18 @@ namespace laba9rpm3k._2.ViewModels
             set => Set(ref _selectedContact, value);
         }
 
-        // Команды
         public ICommand AddCommand { get; }
         public ICommand DeleteCommand { get; }
 
-        public MainViewModel()
+        public ViewModel(IDialogService dialogService)
         {
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             Contacts = new ObservableCollection<PhoneContact>();
 
             AddCommand = new RelayCommand(
                 AddContact,
                 () => CanAddContact());
 
-            // Инициализация DeleteCommand
             DeleteCommand = new RelayCommand(
                 DeleteContact,
                 () => CanDeleteContact());
@@ -52,42 +51,51 @@ namespace laba9rpm3k._2.ViewModels
 
         private void AddContact()
         {
+            if (Contacts.Any(c => c.Phone == this.Phone))
+            {
+                _dialogService.ShowWarning(
+                    "Контакт с таким номером телефона уже существует!");
+                return;
+            }
+
             try
             {
-                // Создаем новый Contact с Name и Phone
                 var newContact = new PhoneContact(Name, Phone);
-                // Добавляем его в Contacts
                 Contacts.Add(newContact);
-                // Очищаем поля ввода
+                _dialogService.ShowInfo($"Контакт \"{newContact.Name}\" успешно добавлен!");
                 Name = string.Empty;
                 Phone = string.Empty;
             }
             catch (ArgumentException ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _dialogService.ShowError(ex.Message);
             }
         }
 
         private bool CanAddContact()
         {
-            // Возвращает true, если Name не пуст и Phone соответствует формату
             var tempContact = new PhoneContact(Name, Phone);
             return tempContact.Validate();
         }
 
         private void DeleteContact()
         {
-            // Удаляем SelectedContact из коллекции Contacts, если он не null
             if (SelectedContact != null)
             {
-                Contacts.Remove(SelectedContact);
-                SelectedContact = null;
+                bool isConfirmed = _dialogService.ShowConfirmation(
+                    $"Вы уверены, что хотите удалить контакт \"{SelectedContact.Name}\"?",
+                    "Удаление контакта");
+
+                if (isConfirmed)
+                {
+                    Contacts.Remove(SelectedContact);
+                    SelectedContact = null;
+                }
             }
         }
 
         private bool CanDeleteContact()
         {
-            // Возвращает true, если SelectedContact не равен null
             return SelectedContact != null;
         }
     }
