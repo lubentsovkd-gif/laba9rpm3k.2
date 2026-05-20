@@ -1,5 +1,4 @@
-﻿using laba9rpm3k._2.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 
 namespace laba9rpm3k._2
 {

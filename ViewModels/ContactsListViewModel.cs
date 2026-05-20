@@ -5,9 +5,10 @@ using System.Windows.Input;
 
 namespace laba9rpm3k._2.ViewModels
 {
-    public class ViewModel : ObservableObject
+    public class ContactsListViewModel : ObservableObject, INavigationAware
     {
         private readonly IDialogService _dialogService;
+        private readonly INavigationService _navigationService;
 
         public ObservableCollection<PhoneContact> Contacts { get; }
 
@@ -34,10 +35,12 @@ namespace laba9rpm3k._2.ViewModels
 
         public ICommand AddCommand { get; }
         public ICommand DeleteCommand { get; }
+        public ICommand EditCommand { get; }
 
-        public ViewModel(IDialogService dialogService)
+        public ContactsListViewModel(IDialogService dialogService, INavigationService navigationService)
         {
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             Contacts = new ObservableCollection<PhoneContact>();
 
             AddCommand = new RelayCommand(
@@ -47,6 +50,11 @@ namespace laba9rpm3k._2.ViewModels
             DeleteCommand = new RelayCommand(
                 DeleteContact,
                 () => CanDeleteContact());
+            EditCommand = new RelayCommand(EditContact, () => CanEditContact());
+        }
+        public void OnNavigatedTo(object? parameter)
+        {
+
         }
 
         private void AddContact()
@@ -93,8 +101,19 @@ namespace laba9rpm3k._2.ViewModels
                 }
             }
         }
+        private void EditContact()
+        {
+            if (SelectedContact != null)
+            {
+                _navigationService.NavigateTo<ContactsEditViewModel>(SelectedContact);
+            }
+        }
 
         private bool CanDeleteContact()
+        {
+            return SelectedContact != null;
+        }
+        private bool CanEditContact()
         {
             return SelectedContact != null;
         }
