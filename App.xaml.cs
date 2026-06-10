@@ -1,5 +1,7 @@
-﻿using laba9rpm3k._2.Services;
+﻿using laba9rpm3k._2.Data;
+using laba9rpm3k._2.Services;
 using laba9rpm3k._2.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
@@ -11,6 +13,8 @@ namespace laba9rpm3k._2
         {
             base.OnStartup(e);
             var services = new ServiceCollection();
+
+            services.AddDbContext<ApplicationContext>(options => options.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=PhoneBookDB_Лубенцов_2307д1;User Id=kirxda;Password=1234;TrustServerCertificate=True"));
 
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<INavigationService, AppNavigationService>();
